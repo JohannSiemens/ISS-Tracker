@@ -5,6 +5,19 @@ import useSWR from "swr";
 
 const URL = "https://api.wheretheiss.at/v1/satellites/25544";
 
+const fetcher = async (url) => {
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    const error = new Error("An error occurred while fetching the data.");
+    error.info = await res.json();
+    error.status = res.status;
+    throw error;
+  }
+
+  return res.json();
+};
+
 export default function ISSTracker() {
   useEffect(() => {
     const timer = setInterval(() => {
@@ -16,7 +29,7 @@ export default function ISSTracker() {
     };
   }, []);
 
-  const { data, isLoading, mutate } = useSWR(URL);
+  const { data, isLoading, mutate, error } = useSWR(URL, fetcher);
   console.log(data);
   if (isLoading) {
     return <h1>Loading...</h1>;
